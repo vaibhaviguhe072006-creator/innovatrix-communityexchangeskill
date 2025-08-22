@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Skill Sangam{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Profile Card -->
+        <div class="col-lg-4">
+            <div class="card profile-card">
+                <div class="card-body text-center p-4">
+                    <!-- Profile Image -->
+                    <div class="profile-image mb-3">
+                        {% if user.profile_image_url %}
+                            <img src="{{ user.profile_image_url }}" alt="Profile" 
+                                 class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" 
+                                 style="width: 120px; height: 120px;">
+                                <i class="fas fa-user fa-3x text-white"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Basic Info -->
+                    <h3 class="fw-bold mb-1">{{ user.first_name or 'User' }} {{ user.last_name or '' }}</h3>
+                    {% if user.email %}
+                        <p class="text-muted mb-3">{{ user.email }}</p>
+                    {% endif %}
+
+                    <!-- Bio -->
+                    {% if user.bio %}
+                        <p class="mb-3">{{ user.bio }}</p>
+                    {% endif %}
+
+                    <!-- Stats -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <h4 class="fw-bold text-primary">{{ user.total_taught }}</h4>
+                                <small class="text-muted">Content</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <h4 class="fw-bold text-success">{{ user.total_learned }}</h4>
+                                <small class="text-muted">Learning</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <h4 class="fw-bold text-warning">{{ "%.1f"|format(user.average_rating) }}</h4>
+                                <div class="rating-display">
+                                    {% for i in range(5) %}
+                                        {% if i < user.average_rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted">Rating</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Experience Level -->
+                    <div class="mb-3">
+                        <span class="badge bg-info text-capitalize">{{ user.experience_level }} Level</span>
+                    </div>
+
+                    <!-- Member Since -->
+                    <p class="text-muted small">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Member since {{ user.created_at.strftime('%B %Y') }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('create_content') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-2"></i>Create Content
+                        </a>
+                        <a href="{{ url_for('learn') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-graduation-cap me-2"></i>Browse Skills
+                        </a>
+                        <a href="{{ url_for('teach') }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Teaching Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content and Skills -->
+        <div class="col-lg-8">
+            <!-- My Skills -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">My Skills</h5>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                        <i class="fas fa-plus me-1"></i>Add Skill
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if user_skills %}
+                        <div class="row g-3">
+                            {% for user_skill in user_skills %}
+                            <div class="col-md-6">
+                                <div class="skill-item p-3 rounded">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">{{ user_skill.skill.name }}</h6>
+                                            <small class="text-muted">{{ user_skill.skill_level.title() }} Level</small>
+                                            <br>
+                                            <span class="badge bg-secondary">{{ user_skill.skill.category }}</span>
+                                        </div>
+                                        <div class="text-end">
+                                            {% if user_skill.can_teach %}
+                                                <span class="badge bg-success mb-1">Teaching</span><br>
+                                            {% endif %}
+                                            {% if user_skill.wants_to_learn %}
+                                                <span class="badge bg-info">Learning</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-graduation-cap fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No skills added yet</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                                <i class="fas fa-plus me-2"></i>Add Your First Skill
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- My Content -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">My Content</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_content %}
+                        <div class="row g-3">
+                            {% for content in user_content %}
+                            <div class="col-md-6">
+                                <div class="content-card h-100">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-start mb-2">
+                                            <div class="content-type-icon me-2">
+                                                {% if content.content_type == 'video' %}
+                                                    <i class="fas fa-play-circle text-danger"></i>
+                                                {% elif content.content_type == 'audio' %}
+                                                    <i class="fas fa-music text-success"></i>
+                                                {% elif content.content_type == 'image' %}
+                                                    <i class="fas fa-image text-info"></i>
+                                                {% else %}
+                                                    <i class="fas fa-file-alt text-secondary"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="fw-bold mb-1">
+                                                    <a href="{{ url_for('view_content', content_id=content.id) }}" class="text-decoration-none">
+                                                        {{ content.title }}
+                                                    </a>
+                                                </h6>
+                                                <small class="text-muted">{{ content.skill.name }}</small>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if content.description %}
+                                        <p class="text-muted small mb-2">{{ content.description[:80] }}{% if content.description|length > 80 %}...{% endif %}</p>
+                                        {% endif %}
+                                        
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">
+                                                <i class="fas fa-eye me-1"></i>{{ content.views }} views
+                                            </small>
+                                            <small class="text-muted">{{ content.created_at.strftime('%b %d, %Y') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if user_content|length > 6 %}
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('teach') }}" class="btn btn-outline-primary">
+                                View All Content
+                            </a>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-plus-circle fa-3x text-muted mb-3"></i>
+                            <h6>No content created yet</h6>
+                            <p class="text-muted">Start sharing your knowledge by creating your first piece of content.</p>
+                            <a href="{{ url_for('create_content') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Your First Content
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Skill Modal -->
+<div class="modal fade" id="addSkillModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Skill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_skill') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="skill_name" class="form-label">Skill Name *</label>
+                        <input type="text" class="form-control" id="skill_name" name="skill_name" required
+                               placeholder="e.g., Python Programming, Guitar Playing">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="skill_category" class="form-label">Category *</label>
+                        <select class="form-select" id="skill_category" name="skill_category" required>
+                            <option value="">Select Category</option>
+                            <option value="Programming">Programming</option>
+                            <option value="Creative">Creative</option>
+                            <option value="Music">Music</option>
+                            <option value="Languages">Languages</option>
+                            <option value="Life Skills">Life Skills</option>
+                            <option value="Communication">Communication</option>
+                            <option value="Business">Business</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="skill_level" class="form-label">Your Level *</label>
+                        <select class="form-select" id="skill_level" name="skill_level" required>
+                            <option value="">Select Level</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="can_teach" name="can_teach">
+                            <label class="form-check-label" for="can_teach">
+                                I can teach this skill to others
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="wants_to_learn" name="wants_to_learn">
+                            <label class="form-check-label" for="wants_to_learn">
+                                I want to learn more about this skill
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Skill
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

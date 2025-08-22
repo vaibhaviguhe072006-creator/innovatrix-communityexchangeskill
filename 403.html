@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Access Denied - Skill Sangam{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="error-page py-5">
+                <i class="fas fa-lock fa-5x text-danger mb-4"></i>
+                <h1 class="display-4 fw-bold text-danger">Access Denied</h1>
+                <p class="lead mb-4">Sorry, you don't have permission to access this resource.</p>
+                <p class="text-muted mb-4">
+                    This might be due to an authentication error or insufficient permissions. 
+                    Please try logging in again or contact support if the problem persists.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary me-md-2">
+                        <i class="fas fa-home me-2"></i>Go Home
+                    </a>
+                    <a href="{{ url_for('replit_auth.login') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-sign-in-alt me-2"></i>Try Login Again
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

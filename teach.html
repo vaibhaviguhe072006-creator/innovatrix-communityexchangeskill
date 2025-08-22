@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Teach & Share - Skill Sangam{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 fw-bold">Teaching Dashboard</h1>
+            <p class="text-muted">Share your knowledge and help others learn</p>
+        </div>
+        <div>
+            <a href="{{ url_for('create_content') }}" class="btn btn-primary me-2">
+                <i class="fas fa-plus me-2"></i>Create Content
+            </a>
+            <a href="{{ url_for('mode_selection') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-exchange-alt me-2"></i>Switch Mode
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Quick Stats -->
+        <div class="col-12">
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card text-center p-3">
+                        <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                        <h4 class="fw-bold">{{ user_content|length }}</h4>
+                        <small class="text-muted">Content Created</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center p-3">
+                        <i class="fas fa-eye fa-2x text-info mb-2"></i>
+                        <h4 class="fw-bold">{{ user_content|sum(attribute='views') or 0 }}</h4>
+                        <small class="text-muted">Total Views</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center p-3">
+                        <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                        <h4 class="fw-bold">{{ "%.1f"|format(current_user.average_rating) }}</h4>
+                        <small class="text-muted">Avg Rating</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center p-3">
+                        <i class="fas fa-users fa-2x text-success mb-2"></i>
+                        <h4 class="fw-bold">{{ current_user.total_ratings }}</h4>
+                        <small class="text-muted">Reviews</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Management -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">My Content</h5>
+                    <a href="{{ url_for('create_content') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i>New Content
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if user_content %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Skill</th>
+                                        <th>Type</th>
+                                        <th>Views</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for content in user_content %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if content.content_type == 'video' %}
+                                                    <i class="fas fa-play-circle text-danger me-2"></i>
+                                                {% elif content.content_type == 'audio' %}
+                                                    <i class="fas fa-music text-success me-2"></i>
+                                                {% elif content.content_type == 'image' %}
+                                                    <i class="fas fa-image text-info me-2"></i>
+                                                {% else %}
+                                                    <i class="fas fa-file-alt text-secondary me-2"></i>
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ content.title }}</strong>
+                                                    {% if content.description %}
+                                                        <br><small class="text-muted">{{ content.description[:50] }}...</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ content.skill.name }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-capitalize">{{ content.content_type }}</span>
+                                        </td>
+                                        <td>{{ content.views }}</td>
+                                        <td>{{ content.created_at.strftime('%b %d, %Y') }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('view_content', content_id=content.id) }}" 
+                                                   class="btn btn-outline-primary" title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-plus-circle fa-3x text-muted mb-3"></i>
+                            <h5>No content created yet</h5>
+                            <p class="text-muted">Start sharing your knowledge by creating your first piece of content.</p>
+                            <a href="{{ url_for('create_content') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Your First Content
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Teaching Skills -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Skills I Teach</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_skills %}
+                        {% for user_skill in user_skills %}
+                            {% if user_skill.can_teach %}
+                            <div class="skill-item mb-3 p-3 rounded">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">{{ user_skill.skill.name }}</h6>
+                                        <small class="text-muted">{{ user_skill.skill_level.title() }} Level</small>
+                                    </div>
+                                    <span class="badge bg-success">Teaching</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-graduation-cap fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No teaching skills added yet</p>
+                            <a href="{{ url_for('profile') }}" class="btn btn-sm btn-outline-primary">
+                                Add Skills
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Content Creation Tools -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('create_content') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Create New Content
+                        </a>
+                        <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user-edit me-2"></i>Manage Skills
+                        </a>
+                        <a href="{{ url_for('learn') }}" class="btn btn-outline-info">
+                            <i class="fas fa-search me-2"></i>Browse All Skills
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

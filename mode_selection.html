@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Choose Your Mode - Skill Sangam{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">What would you like to do today?</h1>
+        <p class="lead text-muted">Choose your learning path and get started</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <div class="col-md-5">
+            <div class="mode-card h-100">
+                <div class="card-body text-center p-5">
+                    <div class="mode-icon mb-4">
+                        <i class="fas fa-graduation-cap fa-4x text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Learn New Skills</h3>
+                    <p class="text-muted mb-4">
+                        Explore a variety of skills and learning resources created by our community. 
+                        Access videos, tutorials, guides, and more to expand your knowledge.
+                    </p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Browse skills by category
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Access diverse learning materials
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Track your learning progress
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Rate and review content
+                        </li>
+                    </ul>
+                    <a href="{{ url_for('learn') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-book-reader me-2"></i>Start Learning
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="mode-card h-100">
+                <div class="card-body text-center p-5">
+                    <div class="mode-icon mb-4">
+                        <i class="fas fa-chalkboard-teacher fa-4x text-success"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Teach Others</h3>
+                    <p class="text-muted mb-4">
+                        Share your expertise with the community. Create engaging content, 
+                        upload resources, and help others learn from your experience.
+                    </p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Create various content types
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Upload files and resources
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Build your teaching reputation
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Get feedback from learners
+                        </li>
+                    </ul>
+                    <a href="{{ url_for('teach') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>Start Teaching
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <p class="text-muted">
+            <i class="fas fa-lightbulb me-2"></i>
+            You can switch between learning and teaching modes anytime from your dashboard
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Learn Skills - Skill Sangam{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 fw-bold">Explore Skills</h1>
+            <p class="text-muted">Discover new learning opportunities from our community</p>
+        </div>
+        <a href="{{ url_for('mode_selection') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-exchange-alt me-2"></i>Switch Mode
+        </a>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-6">
+                    <label for="search" class="form-label">Search Skills</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="Search for skills..." value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="category" class="form-label">Category</label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if cat == category_filter %}selected{% endif %}>
+                            {{ cat }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Skills Grid -->
+    <div class="row g-4">
+        {% for skill in skills %}
+        <div class="col-md-6 col-lg-4">
+            <div class="skill-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="card-title fw-bold">{{ skill.name }}</h5>
+                            <span class="badge bg-secondary">{{ skill.category }}</span>
+                        </div>
+                        <div class="skill-icon">
+                            {% if skill.category == 'Programming' %}
+                                <i class="fas fa-code fa-2x text-primary"></i>
+                            {% elif skill.category == 'Creative' %}
+                                <i class="fas fa-palette fa-2x text-info"></i>
+                            {% elif skill.category == 'Music' %}
+                                <i class="fas fa-music fa-2x text-warning"></i>
+                            {% elif skill.category == 'Languages' %}
+                                <i class="fas fa-globe fa-2x text-success"></i>
+                            {% else %}
+                                <i class="fas fa-book fa-2x text-secondary"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if skill.description %}
+                    <p class="card-text text-muted">{{ skill.description[:100] }}{% if skill.description|length > 100 %}...{% endif %}</p>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-file-alt me-1"></i>
+                            {{ skill.content|length }} resources
+                        </small>
+                        <a href="{{ url_for('skill_detail', skill_id=skill.id) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-arrow-right me-1"></i>Explore
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if not skills %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4>No skills found</h4>
+                <p class="text-muted">Try adjusting your search criteria or explore different categories.</p>
+                <a href="{{ url_for('learn') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-refresh me-2"></i>Clear Filters
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

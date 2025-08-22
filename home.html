@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Skill Sangam{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 fw-bold">Welcome back, {{ current_user.first_name or 'User' }}!</h1>
+                    <p class="text-muted">Ready to continue your learning journey?</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('mode_selection') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <!-- Stats Cards -->
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-graduation-cap fa-2x text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold">{{ user.total_learned }}</h3>
+                    <p class="text-muted mb-0">Skills Learning</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-chalkboard-teacher fa-2x text-success"></i>
+                    </div>
+                    <h3 class="fw-bold">{{ user.total_taught }}</h3>
+                    <p class="text-muted mb-0">Content Created</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-star fa-2x text-warning"></i>
+                    </div>
+                    <h3 class="fw-bold">{{ "%.1f"|format(user.average_rating) }}</h3>
+                    <p class="text-muted mb-0">Average Rating</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-users fa-2x text-info"></i>
+                    </div>
+                    <h3 class="fw-bold">{{ user.total_ratings }}</h3>
+                    <p class="text-muted mb-0">Reviews Received</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Quick Actions -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <a href="{{ url_for('learn') }}" class="text-decoration-none">
+                                <div class="action-card p-3 h-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="action-icon me-3">
+                                            <i class="fas fa-book-reader fa-2x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Browse Skills</h6>
+                                            <p class="text-muted small mb-0">Discover new learning opportunities</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="{{ url_for('create_content') }}" class="text-decoration-none">
+                                <div class="action-card p-3 h-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="action-icon me-3">
+                                            <i class="fas fa-plus-circle fa-2x text-success"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Create Content</h6>
+                                            <p class="text-muted small mb-0">Share your knowledge with others</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="{{ url_for('teach') }}" class="text-decoration-none">
+                                <div class="action-card p-3 h-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="action-icon me-3">
+                                            <i class="fas fa-laptop fa-2x text-info"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Manage Content</h6>
+                                            <p class="text-muted small mb-0">Review your teaching materials</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="{{ url_for('profile') }}" class="text-decoration-none">
+                                <div class="action-card p-3 h-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="action-icon me-3">
+                                            <i class="fas fa-user-edit fa-2x text-warning"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Update Profile</h6>
+                                            <p class="text-muted small mb-0">Customize your learning profile</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Content</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_content %}
+                        {% for content in recent_content %}
+                        <div class="d-flex align-items-start mb-3{% if not loop.last %} pb-3 border-bottom{% endif %}">
+                            <div class="content-type-icon me-3 mt-1">
+                                {% if content.content_type == 'video' %}
+                                    <i class="fas fa-play-circle text-danger"></i>
+                                {% elif content.content_type == 'audio' %}
+                                    <i class="fas fa-music text-success"></i>
+                                {% elif content.content_type == 'image' %}
+                                    <i class="fas fa-image text-info"></i>
+                                {% else %}
+                                    <i class="fas fa-file-alt text-secondary"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('view_content', content_id=content.id) }}" class="text-decoration-none">
+                                        {{ content.title }}
+                                    </a>
+                                </h6>
+                                <p class="text-muted small mb-1">{{ content.skill.name }}</p>
+                                <small class="text-muted">{{ content.views }} views</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No content created yet</p>
+                            <a href="{{ url_for('create_content') }}" class="btn btn-sm btn-outline-primary">
+                                Create Your First Content
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

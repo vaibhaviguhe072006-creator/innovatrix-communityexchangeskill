@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}{{ content.title }} - Skill Sangam{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Content Header -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="h2 fw-bold">{{ content.title }}</h1>
+                            <div class="d-flex align-items-center text-muted mb-2">
+                                <span class="badge bg-secondary me-3">{{ content.skill.name }}</span>
+                                <small>
+                                    <i class="fas fa-eye me-1"></i>{{ content.views }} views
+                                </small>
+                            </div>
+                        </div>
+                        <div class="content-type-icon">
+                            {% if content.content_type == 'video' %}
+                                <i class="fas fa-play-circle fa-2x text-danger"></i>
+                            {% elif content.content_type == 'audio' %}
+                                <i class="fas fa-music fa-2x text-success"></i>
+                            {% elif content.content_type == 'image' %}
+                                <i class="fas fa-image fa-2x text-info"></i>
+                            {% else %}
+                                <i class="fas fa-file-alt fa-2x text-secondary"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if content.description %}
+                    <p class="text-muted">{{ content.description }}</p>
+                    {% endif %}
+
+                    <!-- Author Info -->
+                    <div class="d-flex align-items-center mt-3 pt-3 border-top">
+                        <div class="me-3">
+                            {% if content.author.profile_image_url %}
+                                <img src="{{ content.author.profile_image_url }}" alt="Author" 
+                                     class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+                                     style="width: 48px; height: 48px;">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-1">{{ content.author.first_name or 'Anonymous' }} {{ content.author.last_name or '' }}</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    {% for i in range(5) %}
+                                        {% if i < content.author.average_rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <small class="text-muted ms-1">({{ content.author.total_ratings }} reviews)</small>
+                                </div>
+                                <small class="text-muted">{{ content.author.total_taught }} content created</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Display -->
+            <div class="card">
+                <div class="card-body">
+                    {% if content.content_type == 'text' %}
+                        <div class="content-text">
+                            {{ content.content_data|nl2br }}
+                        </div>
+                    {% elif content.content_type == 'video' and content.file_path %}
+                        <div class="text-center mb-3">
+                            <video controls class="img-fluid" style="max-height: 400px; width: 100%;">
+                                <source src="{{ url_for('uploaded_file', filename=content.file_path.split('/')[-1]) }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    {% elif content.content_type == 'audio' and content.file_path %}
+                        <div class="text-center mb-3">
+                            <audio controls class="w-100">
+                                <source src="{{ url_for('uploaded_file', filename=content.file_path.split('/')[-1]) }}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    {% elif content.content_type == 'image' and content.file_path %}
+                        <div class="text-center mb-3">
+                            <img src="{{ url_for('uploaded_file', filename=content.file_path.split('/')[-1]) }}" 
+                                 alt="{{ content.title }}" class="img-fluid rounded" style="max-height: 500px;">
+                        </div>
+                    {% elif content.file_path %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-file-download fa-3x text-muted mb-3"></i>
+                            <h5>{{ content.file_name }}</h5>
+                            <p class="text-muted">File size: {{ "%.1f"|format(content.file_size / 1024 / 1024) }} MB</p>
+                            <a href="{{ url_for('uploaded_file', filename=content.file_path.split('/')[-1]) }}" 
+                               class="btn btn-primary" download="{{ content.file_name }}">
+                                <i class="fas fa-download me-2"></i>Download File
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Rating Section -->
+            {% if current_user.id != content.author_id %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Rate this Content</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('rate_user', user_id=content.author_id) }}">
+                        <input type="hidden" name="content_id" value="{{ content.id }}">
+                        <div class="mb-3">
+                            <label class="form-label">Rating</label>
+                            <div class="rating-input">
+                                {% for i in range(1, 6) %}
+                                <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" required>
+                                <label for="star{{ i }}" class="star-label">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Comment (Optional)</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3" 
+                                      placeholder="Share your thoughts about this content..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-star me-2"></i>Submit Rating
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Related Content -->
+            {% if related_content %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Related Content</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in related_content %}
+                    <div class="d-flex align-items-start mb-3{% if not loop.last %} pb-3 border-bottom{% endif %}">
+                        <div class="content-type-icon me-3 mt-1">
+                            {% if item.content_type == 'video' %}
+                                <i class="fas fa-play-circle text-danger"></i>
+                            {% elif item.content_type == 'audio' %}
+                                <i class="fas fa-music text-success"></i>
+                            {% elif item.content_type == 'image' %}
+                                <i class="fas fa-image text-info"></i>
+                            {% else %}
+                                <i class="fas fa-file-alt text-secondary"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">
+                                <a href="{{ url_for('view_content', content_id=item.id) }}" class="text-decoration-none">
+                                    {{ item.title }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">{{ item.views }} views</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Skill Info -->
+            <div class="card{% if related_content %} mt-4{% endif %}">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">About {{ content.skill.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="skill-icon me-3">
+                            {% if content.skill.category == 'Programming' %}
+                                <i class="fas fa-code fa-2x text-primary"></i>
+                            {% elif content.skill.category == 'Creative' %}
+                                <i class="fas fa-palette fa-2x text-info"></i>
+                            {% elif content.skill.category == 'Music' %}
+                                <i class="fas fa-music fa-2x text-warning"></i>
+                            {% elif content.skill.category == 'Languages' %}
+                                <i class="fas fa-globe fa-2x text-success"></i>
+                            {% else %}
+                                <i class="fas fa-book fa-2x text-secondary"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ content.skill.name }}</h6>
+                            <span class="badge bg-secondary">{{ content.skill.category }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if content.skill.description %}
+                    <p class="text-muted">{{ content.skill.description }}</p>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('skill_detail', skill_id=content.skill.id) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-right me-1"></i>Explore More {{ content.skill.name }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('learn') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-search me-2"></i>Browse More Skills
+                        </a>
+                        <a href="{{ url_for('create_content') }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-plus me-2"></i>Create Content
+                        </a>
+                        <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-home me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
