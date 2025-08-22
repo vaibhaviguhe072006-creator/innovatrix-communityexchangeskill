@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SKILL SANGAM – Learn & Teach by Barter</title>
+  <meta name="description" content="Skill Sangam: barter skills in your community. Learn or teach with notes, audio, video, and files. 100% front‑end (no server)." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #11172e;
+      --muted: #8ea0c0;
+      --text: #ecf2ff;
+      --accent: #7c6cff;
+      --accent-2: #20e3b2;
+      --danger: #ff6b6b;
+      --warning: #ffcc66;
+      --radius: 16px;
+      --gap: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box }
+    html, body { height: 100% }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text); background: radial-gradient(1200px 800px at 80% -10%, #1a2350 0, #0b1020 55%, #060912 100%);
+      letter-spacing: .1px;
+    }
+    a { color: inherit; text-decoration: none }
+    button { font: inherit }
+
+    /* Layout */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(140%) blur(12px);
+      background: linear-gradient(180deg, rgba(10,13,30,.85), rgba(10,13,30,.55));
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .nav {
+      max-width: 1200px; margin: 0 auto; padding: 14px 18px; display: flex; align-items: center; gap: 14px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .4px; font-size: 20px;
+    }
+    .logo {
+      width: 34px; height: 34px; border-radius: 10px; background:
+        conic-gradient(from 210deg at 70% 30%, var(--accent), var(--accent-2) 40%, #00bcd4 60%, #ff69b4 90%, var(--accent) 100%);
+      box-shadow: 0 6px 18px rgba(124,108,255,.45), inset 0 0 30px rgba(255,255,255,.2);
+    }
+    .nav-spacer { flex: 1 }
+    .nav a, .nav button.link { opacity: .9; padding: 8px 12px; border-radius: 10px; transition: .2s ease; border: none; background: transparent; color: var(--text); cursor: pointer }
+    .nav a.active, .nav a:hover, .nav button.link:hover { background: rgba(255,255,255,.06) }
+    .cta { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #0b0f1e; padding: 9px 14px; border-radius: 12px; font-weight: 700; box-shadow: 0 8px 20px rgba(124,108,255,.35); }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 24px 18px 80px }
+    .grid { display: grid; gap: 18px }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+    @media (max-width: 1000px) { .grid.cols-4 { grid-template-columns: repeat(3, 1fr) } }
+    @media (max-width: 800px) { .grid.cols-3 { grid-template-columns: repeat(2, 1fr) } }
+    @media (max-width: 640px) { .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr } }
+
+    .hero { display: grid; grid-template-columns: 1.2fr .8fr; gap: 24px; align-items: center; padding-top: 28px }
+    @media (max-width: 900px) { .hero { grid-template-columns: 1fr } }
+
+    /* Cards */
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .card.pad { padding: 18px }
+    .title-xl { font-size: clamp(26px, 3.6vw, 44px); line-height: 1.05; font-weight: 800; margin: 0 0 10px }
+    .subtitle { color: var(--muted); font-size: 15px; margin: 0 0 18px }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px }
+    .chip { padding: 8px 12px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08); border-radius: 999px; font-size: 13px; cursor: pointer; opacity: .9 }
+    .chip.active { background: linear-gradient(135deg, rgba(124,108,255,.35), rgba(32,227,178,.35)); border-color: rgba(255,255,255,.18) }
+
+    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.06); color: var(--text); cursor: pointer; transition: .2s ease }
+    .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,.1) }
+    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #0b0f1e; border-color: transparent; font-weight: 800 }
+    .btn.ghost { background: transparent }
+    .btn.danger { background: rgba(255, 107, 107, .1); border-color: rgba(255,107,107,.35) }
+
+    .input, select, textarea {
+      width: 100%; padding: 12px 14px; color: var(--text); background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1); border-radius: 12px; outline: none; transition: .2s ease;
+    }
+    .input::placeholder, textarea::placeholder { color: #9bb0d6 }
+    .input:focus, textarea:focus, select:focus { border-color: rgba(124,108,255,.6); box-shadow: 0 0 0 4px rgba(124,108,255,.15) }
+
+    .bar { display: flex; gap: 10px; align-items: center }
+
+    .skill-card { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; padding: 14px }
+    .skill-card .name { font-weight: 700 }
+    .skill-card .desc { color: var(--muted); font-size: 14px }
+    .skill-card .meta { font-size: 12px; opacity: .9 }
+
+    .pill { display: inline-flex; gap: 6px; align-items: center; padding: 6px 10px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08); border-radius: 999px; font-size: 12px; }
+
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent); margin: 10px 0 }
+
+    .view { display: none }
+    .view.active { display: block }
+
+    .dropzone { border: 2px dashed rgba(255,255,255,.25); border-radius: var(--radius); padding: 18px; text-align: center; background: rgba(255,255,255,.03) }
+    .dropzone.dragover { border-color: var(--accent-2); background: rgba(32,227,178,.08) }
+
+    .file-list { display: grid; gap: 12px }
+    .file-item { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08) }
+
+    dialog.modal { max-width: 720px; width: calc(100% - 28px); background: #0e152e; color: var(--text); border: 1px solid rgba(255,255,255,.1); border-radius: 18px; padding: 0; overflow: hidden; box-shadow: var(--shadow) }
+    .modal header { position: sticky; inset: 0; background: rgba(12,14,28,.9); border-bottom: 1px solid rgba(255,255,255,.08) }
+    .modal .inner { padding: 18px }
+
+    footer { max-width: 1200px; margin: 0 auto; padding: 18px; opacity: .8; color: var(--muted) }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); padding: 2px 6px; border-radius: 6px; font-size: 12px }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav" aria-label="Primary">
+      <div class="brand" role="link" tabindex="0" onclick="Router.go('#home')" onkeypress="if(event.key==='Enter') Router.go('#home')">
+        <div class="logo" aria-hidden="true"></div>
+        SKILL SANGAM
+      </div>
+      <div class="nav-spacer"></div>
+      <a href="#home" data-link>Home</a>
+      <a href="#learn" data-link>Learn</a>
+      <a href="#teach" data-link>Teach</a>
+      <button class="link cta" onclick="Router.go('#teach')">Start Teaching</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="view active">
+      <div class="hero">
+        <div class="card pad">
+          <h1 class="title-xl">Barter skills, build community.<br/>No money. Just mastery.</h1>
+          <p class="subtitle">Choose a path below. Skill Sangam connects learners and teachers nearby through a fair, simple exchange. Upload notes, audio, video, or files — and discover skills to learn today.</p>
+          <div class="bar" style="gap:12px; flex-wrap: wrap">
+            <button class="btn primary" onclick="Router.go('#learn')">I want to Learn</button>
+            <button class="btn" onclick="Router.go('#teach')">I want to Teach</button>
+            <button class="btn ghost" onclick="seedDemo()">Load Demo Content</button>
+          </div>
+          <div style="height:10px"></div>
+          <div class="chips" id="home-chips"></div>
+        </div>
+        <div class="card pad">
+          <h3 style="margin:0 0 10px">Quick search</h3>
+          <div class="bar">
+            <input id="globalSearch" class="input" placeholder="Try: guitar, Python, yoga, drawing..." oninput="Views.Learn.search(this.value)" aria-label="Global search" />
+            <button class="btn" onclick="Views.Learn.showAll()">Browse All</button>
+          </div>
+          <div class="divider"></div>
+          <div id="homeResults" class="grid cols-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEARN -->
+    <section id="learn" class="view">
+      <div class="bar" style="justify-content:space-between; flex-wrap: wrap">
+        <h2 style="margin:0">Find a skill to learn</h2>
+        <div class="bar" style="gap:10px">
+          <input id="learnSearch" class="input" placeholder="Search skills..." oninput="Views.Learn.search(this.value)" aria-label="Search skills" />
+          <select id="sortSelect" onchange="Views.Learn.render()" aria-label="Sort by">
+            <option value="pop">Sort: Popular</option>
+            <option value="new">Sort: Newest</option>
+            <option value="az">Sort: A → Z</option>
+          </select>
+        </div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="chips" id="categoryChips"></div>
+      <div style="height:10px"></div>
+      <div id="learnGrid" class="grid cols-3"></div>
+    </section>
+
+    <!-- TEACH / UPLOAD -->
+    <section id="teach" class="view">
+      <div class="grid cols-2">
+        <div class="card pad">
+          <h2 style="margin:0 0 6px">Share what you can teach</h2>
+          <p class="subtitle" style="margin-top:0">Upload notes, audio, video, or any file. Add a title, description, and tags so learners can find you.</p>
+
+          <form id="uploadForm" onsubmit="Uploads.handleSubmit(event)">
+            <label>Title
+              <input required class="input" name="title" placeholder="e.g., Beginner Guitar Chords" />
+            </label>
+            <div style="height:10px"></div>
+            <label>Description
+              <textarea required class="input" name="desc" placeholder="What will learners get? Prerequisites? Format?" rows="4"></textarea>
+            </label>
+            <div style="height:10px"></div>
+            <label>Tags (comma separated)
+              <input class="input" name="tags" placeholder="guitar, music, beginner" />
+            </label>
+            <div style="height:10px"></div>
+
+            <div class="dropzone" id="dropzone" tabindex="0" aria-label="Drop files or click to select" onclick="Uploads.pickFiles()" ondragover="Uploads.drag(event)" ondragleave="Uploads.dragEnd(event)" ondrop="Uploads.drop(event)">
+              <p style="margin:0 0 6px"><strong>Drop files</strong> here or <span class="pill">Click to browse</span></p>
+              <small class="subtitle">Supports text, PDF, images, audio, video and more. Files are stored locally in your browser.</small>
+              <input id="fileInput" type="file" multiple hidden accept=".txt,.md,.pdf,.png,.jpg,.jpeg,.webp,.mp3,.wav,.m4a,.mp4,.mov,.webm,.csv,.json,.ppt,.pptx,.doc,.docx,.zip,.rar" />
+            </div>
+            <div style="height:10px"></div>
+            <div class="file-list" id="fileList"></div>
+            <div style="height:14px"></div>
+            <div class="bar" style="justify-content:space-between; align-items:center">
+              <div class="bar" style="gap:8px">
+                <button type="button" class="btn" onclick="Uploads.addTextNote()">Add Text Note</button>
+                <button type="button" class="btn" onclick="Uploads.addYoutube()">Add YouTube Link</button>
+              </div>
+              <button class="btn primary" type="submit">Publish</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card pad">
+          <h3 style="margin:0 0 8px">Your teaching posts</h3>
+          <div id="myContent" class="grid cols-1"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="detailModal" class="modal">
+    <header class="bar" style="padding:10px 14px">
+      <strong id="modalTitle"></strong>
+      <div class="nav-spacer"></div>
+      <button class="btn" onclick="closeModal()">Close</button>
+    </header>
+    <div class="inner">
+      <div id="modalBody"></div>
+      <div style="height:10px"></div>
+      <div class="bar" style="justify-content:space-between; flex-wrap: wrap">
+        <div id="modalMeta" class="bar" style="gap:8px"></div>
+        <div class="bar" style="gap:8px">
+          <button class="btn" onclick="requestBarter()">Request to Learn</button>
+          <button class="btn ghost" onclick="shareLink()">Share</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <footer>
+    <div>Pro‑tip: Use <span class="kbd">/#learn</span> or <span class="kbd">/#teach</span> to deep‑link views. All data is stored locally in your browser (no server).</div>
+  </footer>
+
+  <script>
+  // --- Tiny SPA Router ---
+  const Router = {
+    go(hash) { location.hash = hash; },
+    init() {
+      function render() {
+        const hash = location.hash || '#home';
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        const el = document.querySelector(hash);
+        (el || document.querySelector('#home')).classList.add('active');
+        document.querySelectorAll('[data-link]').forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === hash);
+        });
+        if (hash === '#learn') Views.Learn.render();
+        if (hash === '#teach') Views.Teach.render();
+        if (hash === '#home') Views.Home.render();
+      }
+      addEventListener('hashchange', render);
+      render();
+    }
+  };
+
+  // --- Data Store (localStorage) ---
+  const Store = {
+    key: 'skill-sangam:v1',
+    load() { try { return JSON.parse(localStorage.getItem(this.key)) || { content: [], categories: defaultCategories } } catch { return { content: [], categories: defaultCategories } } },
+    save(state) { localStorage.setItem(this.key, JSON.stringify(state)); },
+    addContent(item) { const s = this.load(); s.content.unshift(item); this.save(s); },
+    removeContent(id) { const s = this.load(); s.content = s.content.filter(x => x.id !== id); this.save(s); },
+  };
+
+  // --- Defaults & Utils ---
+  const defaultCategories = ['Programming','Music','Design','Art','Fitness','Academic','Language','Cooking','Business','Personal Dev'];
+  const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const timeAgo = (ts) => {
+    const d = Date.now() - ts; const m = 60e3, h = 36e5, day = 864e5;
+    if (d < m) return 'just now'; if (d < h) return Math.floor(d/m)+'m ago'; if (d < day) return Math.floor(d/h)+'h ago'; return Math.floor(d/day)+'d ago';
+  };
+  const icon = (name) => ({
+    file: '📎', text: '📝', audio: '🎵', video: '🎬', image: '🖼️', pdf: '📕', link: '🔗'
+  }[name] || '📦');
+
+  // --- Demo Seed ---
+  function seedDemo() {
+    const s = Store.load();
+    if (s.content.length > 0 && !confirm('Demo content will be added on top. Continue?')) return;
+    const demo = [
+      { title: 'Python Basics – crash notes', desc: 'Variables, loops, functions. PDF + code snippets.', tags:['programming','python','beginner'], type:'pdf', dataUrl:'', size: 120000, created: Date.now()-3600e3 },
+      { title: 'Acoustic Guitar: chord camp', desc: 'Open chords, strumming patterns, 10 songs.', tags:['music','guitar','beginner'], type:'video', dataUrl:'', size: 4_000_000, created: Date.now()-7200e3 },
+      { title: 'Sketching 101 – basic forms', desc: 'Learn gesture, forms, shading drills.', tags:['art','drawing','sketch'], type:'image', dataUrl:'', size: 800000, created: Date.now()-1800e3 },
+      { title: 'Spoken English club', desc: 'Pronunciation + confidence. Weekly meets.', tags:['language','english','speaking'], type:'link', href:'https://youtu.be/dQw4w9WgXcQ', size: 0, created: Date.now()-5400e3 },
+    ].map(x => ({ id: uid(), ...x }));
+    s.content = demo.concat(s.content);
+    Store.save(s);
+    Router.go('#learn');
+  }
+
+  // --- Views ---
+  const Views = {
+    Home: {
+      render() {
+        // category chips
+        const chipsEl = document.getElementById('home-chips');
+        const cats = Store.load().categories;
+        chipsEl.innerHTML = cats.map(c => `<span class="chip" onclick="Views.Learn.filterCat('${c}')">${c}</span>`).join('');
+        // results
+        this.search(document.getElementById('globalSearch').value || '');
+      },
+      search(q) {
+        const grid = document.getElementById('homeResults');
+        const data = Store.load().content;
+        const list = data.filter(x => (x.title+x.desc+(x.tags||[]).join(',')).toLowerCase().includes(q.toLowerCase())).slice(0,6);
+        grid.innerHTML = list.map(cardHTML).join('') || `<div class="subtitle">No results yet. Try <span class="pill">Load Demo Content</span> or upload in Teach.</div>`;
+      }
+    },
+    Learn: {
+      q: '', cat: 'All',
+      filterCat(c) { this.cat = c; this.render(); },
+      showAll() { Router.go('#learn'); this.q = ''; document.getElementById('globalSearch').value=''; this.render(); },
+      search(q) { this.q = q; this.render(); },
+      render() {
+        const state = Store.load();
+        // chips
+        const cats = ['All', ...state.categories];
+        const chips = cats.map(c => `<span class="chip ${c===this.cat?'active':''}" onclick="Views.Learn.filterCat('${c}')">${c}</span>`).join('');
+        document.getElementById('categoryChips').innerHTML = chips;
+        // filter + sort
+        let arr = state.content.slice();
+        if (this.cat !== 'All') arr = arr.filter(x => (x.tags||[]).map(t=>t.toLowerCase()).includes(this.cat.toLowerCase()));
+        if (this.q) arr = arr.filter(x => (x.title+x.desc+(x.tags||[]).join(',')).toLowerCase().includes(this.q.toLowerCase()));
+        const sortBy = document.getElementById('sortSelect').value;
+        if (sortBy === 'new') arr.sort((a,b)=>b.created-a.created);
+        if (sortBy === 'az') arr.sort((a,b)=>a.title.localeCompare(b.title));
+        if (sortBy === 'pop') arr.sort((a,b)=> (b.size||0) - (a.size||0));
+        const grid = document.getElementById('learnGrid');
+        grid.innerHTML = arr.map(cardHTML).join('') || `<div class="card pad"><div class="subtitle">Nothing here yet. Switch to <a href="#teach">Teach</a> and upload your first lesson.</div></div>`;
+      }
+    },
+    Teach: {
+      render() {
+        const mine = Store.load().content.filter(x=>x.mine);
+        const wrap = document.getElementById('myContent');
+        wrap.innerHTML = mine.map(m => `
+          <div class="card pad skill-card">
+            <div>
+              <div class="name">${icon(m.type)} ${m.title}</div>
+              <div class="desc">${m.desc}</div>
+              <div class="bar" style="gap:8px; flex-wrap:wrap; margin-top:6px">
+                ${(m.tags||[]).map(t=>`<span class="pill">#${t}</span>`).join('')}
+              </div>
+              <div class="meta">Published ${timeAgo(m.created)}</div>
+            </div>
+            <div class="bar" style="gap:8px">
+              <button class="btn" onclick="openDetail('${m.id}')">View</button>
+              <button class="btn danger" onclick="removePost('${m.id}')">Delete</button>
+            </div>
+          </div>
+        `).join('') || `<div class="subtitle">No posts yet. Use the form to publish.</div>`;
+      }
+    }
+  };
+
+  function cardHTML(x){
+    return `
+    <article class="card pad skill-card" role="button" tabindex="0" onclick="openDetail('${x.id}')" onkeypress="if(event.key==='Enter') openDetail('${x.id}')">
+      <div>
+        <div class="name">${icon(x.type)} ${x.title}</div>
+        <div class="desc">${x.desc}</div>
+        <div class="bar" style="gap:8px; flex-wrap:wrap; margin-top:6px">${(x.tags||[]).map(t=>`<span class='pill'>#${t}</span>`).join('')}</div>
+        <div class="meta">${timeAgo(x.created)} • ${x.type.toUpperCase()}</div>
+      </div>
+      <button class="btn">Details</button>
+    </article>`;
+  }
+
+  // --- Uploads ---
+  const Uploads = {
+    buffer: [],
+    pickFiles(){ document.getElementById('fileInput').click(); },
+    drag(e){ e.preventDefault(); document.getElementById('dropzone').classList.add('dragover'); },
+    dragEnd(e){ e.preventDefault(); document.getElementById('dropzone').classList.remove('dragover'); },
+    drop(e){ e.preventDefault(); this.dragEnd(e); this.handleFiles(e.dataTransfer.files); },
+  };
+
+  document.getElementById('fileInput').addEventListener('change', (e)=>Uploads.handleFiles(e.target.files));
+
+  Uploads.handleFiles = async function(fileList){
+    const files = [...fileList];
+    for (const f of files){
+      const type = detectType(f);
+      const dataUrl = await readAsDataURL(f).catch(()=>null);
+      this.buffer.push({ id: uid(), name: f.name, size: f.size, type, dataUrl, fileType: f.type });
+    }
+    renderBuffer();
+  };
+
+  Uploads.addTextNote = function(){
+    const note = prompt('Enter text note (you can paste multi-line).');
+    if (!note) return;
+    const blob = new Blob([note], { type: 'text/plain' });
+    const dataUrl = URL.createObjectURL(blob);
+    this.buffer.push({ id: uid(), name: 'note.txt', size: blob.size, type: 'text', dataUrl, fileType: 'text/plain' });
+    renderBuffer();
+  };
+
+  Uploads.addYoutube = function(){
+    const href = prompt('Paste YouTube URL');
+    if (!href) return;
+    this.buffer.push({ id: uid(), name: 'YouTube Link', size: 0, type: 'link', href });
+    renderBuffer();
+  };
+
+  Uploads.remove = function(id){
+    this.buffer = this.buffer.filter(x=>x.id!==id); renderBuffer();
+  };
+
+  Uploads.handleSubmit = function(e){
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const title = form.get('title').toString().trim();
+    const desc = form.get('desc').toString().trim();
+    const tags = form.get('tags').toString().split(',').map(s=>s.trim()).filter(Boolean);
+    if (!title || !desc) return alert('Title and description are required.');
+    if (this.buffer.length === 0) return alert('Please add at least one file, note, or link.');
+    const items = this.buffer.map(b=>({ id: uid(), title, desc, tags, type: b.type, dataUrl: b.dataUrl, href: b.href, size: b.size, fileType: b.fileType, created: Date.now(), mine: true }));
+    items.forEach(Store.addContent.bind(Store));
+    this.buffer = []; e.target.reset(); renderBuffer(); Views.Teach.render(); alert('Published! Your post appears in Learn and Teach.');
+  };
+
+  function renderBuffer(){
+    const wrap = document.getElementById('fileList');
+    wrap.innerHTML = Uploads.buffer.map(b=>`
+      <div class="file-item">
+        <div>
+          <div><strong>${icon(b.type)} ${b.name}</strong></div>
+          <div class="subtitle">${b.fileType || b.type.toUpperCase()} • ${fmtSize(b.size)}</div>
+        </div>
+        <div class="bar" style="gap:8px">
+          ${b.dataUrl ? `<a class="btn" href="${b.dataUrl}" download>Download</a>` : ''}
+          <button class="btn danger" onclick="Uploads.remove('${b.id}')">Remove</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function fmtSize(bytes){ if (!bytes && bytes!==0) return '—'; const u=['B','KB','MB','GB']; let i=0; let n=bytes; while(n>1024 && i<u.length-1){ n/=1024; i++; } return `${n.toFixed(1)} ${u[i]}`; }
+  function detectType(f){ if (!f) return 'file'; if (f.type.startsWith('image/')) return 'image'; if (f.type.startsWith('audio/')) return 'audio'; if (f.type.startsWith('video/')) return 'video'; if (f.type==='application/pdf') return 'pdf'; if (f.type.startsWith('text/')) return 'text'; return 'file'; }
+  function readAsDataURL(file){ return new Promise((res, rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+
+  // --- Details Modal ---
+  function openDetail(id){
+    const s = Store.load();
+    const item = s.content.find(x=>x.id===id) || s.content.find(x=>x.id===id.replace('preview-',''));
+    if (!item) return;
+    document.getElementById('modalTitle').textContent = item.title;
+    const body = document.getElementById('modalBody');
+    const meta = document.getElementById('modalMeta');
+
+    let media = '';
+    if (item.type==='image' && item.dataUrl) media = `<img src="${item.dataUrl}" alt="${item.title}" style="max-width:100%; border-radius:12px"/>`;
+    if (item.type==='audio' && item.dataUrl) media = `<audio controls src="${item.dataUrl}" style="width:100%"></audio>`;
+    if (item.type==='video' && item.dataUrl) media = `<video controls src="${item.dataUrl}" style="width:100%; border-radius:12px"></video>`;
+    if (item.type==='pdf' && item.dataUrl) media = `<iframe src="${item.dataUrl}" style="width:100%; height:420px; border:0; border-radius:12px"></iframe>`;
+    if (item.type==='text' && item.dataUrl) media = `<iframe src="${item.dataUrl}" style="width:100%; height:280px; border:0; border-radius:12px; background:#0b0f1e"></iframe>`;
+    if (item.type==='link' && item.href) media = `<a class="btn" href="${item.href}" target="_blank" rel="noopener">Open Link</a>`;
+
+    body.innerHTML = `
+      <p class="subtitle" style="margin-top:0">${item.desc}</p>
+      ${media || '<div class="subtitle">No preview available. Download the file from your post in Teach.</div>'}
+    `;
+
+    meta.innerHTML = `
+      <span class="pill">${icon(item.type)} ${item.type.toUpperCase()}</span>
+      ${(item.tags||[]).map(t=>`<span class="pill">#${t}</span>`).join('')}
+      <span class="pill">${timeAgo(item.created)}</span>
+    `;
+
+    const dlg = document.getElementById('detailModal');
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else alert('Details: '+item.title+"\n\n"+item.desc);
+  }
+  function closeModal(){ document.getElementById('detailModal').close(); }
+  function requestBarter(){ closeModal(); alert('Your barter request has been sent to the teacher (demo).'); }
+  function shareLink(){ navigator.clipboard?.writeText(location.href).then(()=>alert('Link copied!')).catch(()=>alert('Copy failed.')); }
+  function removePost(id){ if(!confirm('Delete this post?')) return; Store.removeContent(id); Views.Teach.render(); Views.Learn.render(); }
+
+  // Init
+  Router.init();
+  Views.Home.render();
+  
+  // Keyboard nav
+  addEventListener('keydown', (e)=>{
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault(); const el = document.querySelector('#learnSearch'); Router.go('#learn'); setTimeout(()=>el?.focus(), 0);
+    }
+  });
+  </script>
+</body>
+</html>
